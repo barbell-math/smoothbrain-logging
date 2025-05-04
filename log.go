@@ -47,13 +47,13 @@ func VLevel(val uint) slog.Level {
 // [RotateWriter].
 func New(opts Opts) (*slog.Logger, error) {
 	var err error
-	var persistantLogs *RotateWriter
+	var persistentLogs *RotateWriter
 
 	if opts.LogDir != "" {
-		if persistantLogs, err = NewRotateWriter(
+		if persistentLogs, err = NewRotateWriter(
 			opts.RotateWriterOpts,
 		); err != nil {
-			persistantLogs.Close()
+			persistentLogs.Close()
 			return nil, err
 		}
 	}
@@ -61,13 +61,13 @@ func New(opts Opts) (*slog.Logger, error) {
 	if opts.TimeFmt == "" {
 		opts.TimeFmt = time.StampNano
 	}
-	handler := newHandler(&opts, persistantLogs)
+	handler := newHandler(&opts, persistentLogs)
 	return slog.New(&handler), nil
 }
 
 func newHandler(
 	opts *Opts,
-	persistantLogs *RotateWriter,
+	persistentLogs *RotateWriter,
 ) handler {
 	rv := handler{
 		curVerbosityLevel: VLevel(opts.CurVerbosityLevel),
@@ -75,14 +75,14 @@ func newHandler(
 		stdoutMultiWriter: io.MultiWriter(),
 	}
 
-	if persistantLogs != nil {
-		rv.stdoutMultiWriter = io.MultiWriter(os.Stdout, persistantLogs)
+	if persistentLogs != nil {
+		rv.stdoutMultiWriter = io.MultiWriter(os.Stdout, persistentLogs)
 	} else {
 		rv.stdoutMultiWriter = io.MultiWriter(os.Stdout)
 	}
 
-	if persistantLogs != nil {
-		rv.stderrMultiWriter = io.MultiWriter(os.Stderr, persistantLogs)
+	if persistentLogs != nil {
+		rv.stderrMultiWriter = io.MultiWriter(os.Stderr, persistentLogs)
 	} else {
 		rv.stderrMultiWriter = io.MultiWriter(os.Stderr)
 	}
@@ -90,6 +90,9 @@ func newHandler(
 	return rv
 }
 
+// Returns true if the supplied logging level is enabled. Error, warn, info, and
+// debug log levels will always return true. Verbosity levels will return true
+// if they are within the allowed max verbosity.
 func (h *handler) Enabled(ctxt context.Context, level slog.Level) bool {
 	switch level {
 	case slog.LevelError, slog.LevelWarn, slog.LevelInfo, slog.LevelDebug:
@@ -102,6 +105,7 @@ func (h *handler) Enabled(ctxt context.Context, level slog.Level) bool {
 	}
 }
 
+// Formats and writes the log messages.
 func (h *handler) Handle(ctxt context.Context, record slog.Record) error {
 	message := record.Message
 	timestamp := record.Time.Format(h.timeFmt)
