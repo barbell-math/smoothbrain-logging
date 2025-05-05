@@ -85,6 +85,44 @@ s.Info("This is an info message", "Separate line", nil, "value", 10)
 </p>
 </details>
 
+<details><summary>Example (Log Multi Error)</summary>
+<p>
+
+
+
+```go
+err := sberr.AppendError(
+	sberr.Wrap(
+		ExpectedDirErr, "This is the first error",
+	),
+	sberr.Wrap(
+		ExpectedDirErr, "This is the second error",
+	),
+	sberr.WrapValueList(
+		ExpectedDirErr,
+		"This is the third error",
+		sberr.WrapListVal{
+			ItemName: "Item 1",
+			Item:     1,
+		},
+		sberr.WrapListVal{
+			ItemName: "Item 2",
+			Item:     1.0,
+		},
+		sberr.WrapListVal{
+			ItemName: "Item 3",
+			Item:     "asdf",
+		},
+	),
+)
+
+s, _ := New(Opts{})
+s.Error(err.Error())
+```
+
+</p>
+</details>
+
 <details><summary>Example (Log Verbose)</summary>
 <p>
 
@@ -193,7 +231,7 @@ var (
 ```
 
 <a name="New"></a>
-## func [New](<https://github.com/barbell-math/smoothbrain-logging/blob/main/log.go#L48>)
+## func [New](<https://github.com/barbell-math/smoothbrain-logging/blob/main/log.go#L49>)
 
 ```go
 func New(opts Opts) (*slog.Logger, error)
@@ -202,7 +240,7 @@ func New(opts Opts) (*slog.Logger, error)
 Creates a new logger. The logs will always be printed to stdout/stderr. If \`opts.RotateWriterOpts.LogDir\` is an empty string no logs will be written to disk. If \`opts.RotateWriterOpts.LogDir\` is a valid dir then all logs from stdout and stderr will be mirrored to files in the supplied dir using a [RotateWriter](<#RotateWriter>).
 
 <a name="VLevel"></a>
-## func [VLevel](<https://github.com/barbell-math/smoothbrain-logging/blob/main/log.go#L39>)
+## func [VLevel](<https://github.com/barbell-math/smoothbrain-logging/blob/main/log.go#L40>)
 
 ```go
 func VLevel(val uint) slog.Level
@@ -211,7 +249,7 @@ func VLevel(val uint) slog.Level
 Translates the requested positive verbosity level from a range of \[0,inf\) to \(\-inf, \-4\]. This must be done for the level to be understood by the \[slog\] package.
 
 <a name="Opts"></a>
-## type [Opts](<https://github.com/barbell-math/smoothbrain-logging/blob/main/log.go#L25-L33>)
+## type [Opts](<https://github.com/barbell-math/smoothbrain-logging/blob/main/log.go#L26-L34>)
 
 
 
