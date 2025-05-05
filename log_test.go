@@ -3,6 +3,8 @@ package sblog
 import (
 	"context"
 	"testing"
+
+	sberr "github.com/barbell-math/smoothbrain-errs"
 )
 
 func TestExampleOutput(t *testing.T) {
@@ -15,6 +17,7 @@ func TestExampleOutput(t *testing.T) {
 	Example_logError()
 	Example_logVerbose()
 	Example_persistantLogs()
+	Example_logMultiError()
 }
 
 func Example_logDebug() {
@@ -125,4 +128,34 @@ func Example_persistantLogs() {
 		context.TODO(), VLevel(1),
 		"This should be saved to ./testData/persistantExample.0.log",
 	)
+}
+
+func Example_logMultiError() {
+	err := sberr.AppendError(
+		sberr.Wrap(
+			ExpectedDirErr, "This is the first error",
+		),
+		sberr.Wrap(
+			ExpectedDirErr, "This is the second error",
+		),
+		sberr.WrapValueList(
+			ExpectedDirErr,
+			"This is the third error",
+			sberr.WrapListVal{
+				ItemName: "Item 1",
+				Item:     1,
+			},
+			sberr.WrapListVal{
+				ItemName: "Item 2",
+				Item:     1.0,
+			},
+			sberr.WrapListVal{
+				ItemName: "Item 3",
+				Item:     "asdf",
+			},
+		),
+	)
+
+	s, _ := New(Opts{})
+	s.Error(err.Error())
 }

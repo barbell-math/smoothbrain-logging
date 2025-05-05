@@ -8,6 +8,7 @@ import (
 	"io"
 	"log/slog"
 	"os"
+	"strings"
 	"time"
 )
 
@@ -107,22 +108,25 @@ func (h *handler) Enabled(ctxt context.Context, level slog.Level) bool {
 
 // Formats and writes the log messages.
 func (h *handler) Handle(ctxt context.Context, record slog.Record) error {
-	message := record.Message
+	message := strings.ReplaceAll(record.Message, "\n", "\n\t")
 	timestamp := record.Time.Format(h.timeFmt)
 
 	zeroVal := slog.Value{}
 	record.Attrs(func(attr slog.Attr) bool {
 		if attr.Value.Equal(zeroVal) {
-			message += fmt.Sprintf("\n\t→ %s", attr.Key)
+			message += fmt.Sprintf(
+				"\n\t→ %s", strings.ReplaceAll(attr.Key, "\n", "\n\t"),
+			)
 		} else if record.NumAttrs() == 1 {
 			message += fmt.Sprintf(
 				" \u001b[90m%s=\u001b[0m%v",
-				attr.Key, attr.Value.String(),
+				attr.Key, strings.ReplaceAll(attr.Value.String(), "\n", "\n\t"),
 			)
 		} else {
 			message += fmt.Sprintf(
 				"\n\t→ \u001b[90m%s=\u001b[0m%v",
-				attr.Key, attr.Value.String(),
+				attr.Key,
+				strings.ReplaceAll(attr.Value.String(), "\n", "\n\t"),
 			)
 		}
 		return true

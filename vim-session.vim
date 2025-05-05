@@ -13,12 +13,43 @@ if &shortmess =~ 'A'
 else
   set shortmess=aoO
 endif
-badd +0 README.md
+badd +3 README.md
+badd +111 log.go
+badd +66 ../smoothbrain-bs/logs.go
+badd +20 rotatingWriter.go
+badd +1 bs/bs.go
+badd +146 log_test.go
+badd +2 testData/.gitignore
 argglobal
 %argdel
-edit README.md
+set stal=2
+tabnew +setlocal\ bufhidden=wipe
+tabrewind
+edit log.go
+let s:save_splitbelow = &splitbelow
+let s:save_splitright = &splitright
+set splitbelow splitright
+wincmd _ | wincmd |
+vsplit
+wincmd _ | wincmd |
+vsplit
+2wincmd h
+wincmd w
+wincmd w
+let &splitbelow = s:save_splitbelow
+let &splitright = s:save_splitright
+wincmd t
+let s:save_winminheight = &winminheight
+let s:save_winminwidth = &winminwidth
+set winminheight=0
+set winheight=1
+set winminwidth=0
+set winwidth=1
+exe 'vert 1resize ' . ((&columns * 89 + 134) / 269)
+exe 'vert 2resize ' . ((&columns * 89 + 134) / 269)
+exe 'vert 3resize ' . ((&columns * 89 + 134) / 269)
 argglobal
-balt README.md
+balt log_test.go
 setlocal fdm=manual
 setlocal fde=0
 setlocal fmr={{{,}}}
@@ -29,13 +60,85 @@ setlocal fdn=20
 setlocal fen
 silent! normal! zE
 let &fdl = &fdl
-let s:l = 3 - ((2 * winheight(0) + 34) / 68)
+let s:l = 115 - ((14 * winheight(0) + 33) / 67)
 if s:l < 1 | let s:l = 1 | endif
 keepjumps exe s:l
 normal! zt
-keepjumps 3
+keepjumps 115
+normal! 044|
+wincmd w
+argglobal
+if bufexists(fnamemodify("log_test.go", ":p")) | buffer log_test.go | else | edit log_test.go | endif
+if &buftype ==# 'terminal'
+  silent file log_test.go
+endif
+balt log.go
+setlocal fdm=manual
+setlocal fde=0
+setlocal fmr={{{,}}}
+setlocal fdi=#
+setlocal fdl=0
+setlocal fml=1
+setlocal fdn=20
+setlocal fen
+silent! normal! zE
+let &fdl = &fdl
+let s:l = 159 - ((64 * winheight(0) + 33) / 67)
+if s:l < 1 | let s:l = 1 | endif
+keepjumps exe s:l
+normal! zt
+keepjumps 159
+normal! 010|
+wincmd w
+argglobal
+if bufexists(fnamemodify("rotatingWriter.go", ":p")) | buffer rotatingWriter.go | else | edit rotatingWriter.go | endif
+if &buftype ==# 'terminal'
+  silent file rotatingWriter.go
+endif
+balt log.go
+setlocal fdm=manual
+setlocal fde=0
+setlocal fmr={{{,}}}
+setlocal fdi=#
+setlocal fdl=0
+setlocal fml=1
+setlocal fdn=20
+setlocal fen
+silent! normal! zE
+let &fdl = &fdl
+let s:l = 20 - ((10 * winheight(0) + 33) / 67)
+if s:l < 1 | let s:l = 1 | endif
+keepjumps exe s:l
+normal! zt
+keepjumps 20
+normal! 013|
+wincmd w
+2wincmd w
+exe 'vert 1resize ' . ((&columns * 89 + 134) / 269)
+exe 'vert 2resize ' . ((&columns * 89 + 134) / 269)
+exe 'vert 3resize ' . ((&columns * 89 + 134) / 269)
+tabnext
+edit bs/bs.go
+argglobal
+balt log.go
+setlocal fdm=manual
+setlocal fde=0
+setlocal fmr={{{,}}}
+setlocal fdi=#
+setlocal fdl=0
+setlocal fml=1
+setlocal fdn=20
+setlocal fen
+silent! normal! zE
+let &fdl = &fdl
+let s:l = 4 - ((3 * winheight(0) + 33) / 67)
+if s:l < 1 | let s:l = 1 | endif
+keepjumps exe s:l
+normal! zt
+keepjumps 4
 normal! 0
 tabnext 1
+set stal=1
 if exists('s:wipebuf') && len(win_findbuf(s:wipebuf)) == 0 && getbufvar(s:wipebuf, '&buftype') isnot# 'terminal'
   silent exe 'bwipe ' . s:wipebuf
 endif
